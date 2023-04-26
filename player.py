@@ -3,7 +3,7 @@ from support import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self,pos,surface):
+	def __init__(self,pos,surface,create_jump_particles):
 		super().__init__()
 		self.import_character_assests()
 		
@@ -17,6 +17,7 @@ class Player(pygame.sprite.Sprite):
 		self.dust_frame_index = 0
 		self.dust_animation_speed = 0.15
 		self.display_surface = surface
+		self.create_jump_particles = create_jump_particles
 
 		#player movement
 		self.direction = pygame.math.Vector2(0,0)
@@ -82,8 +83,12 @@ class Player(pygame.sprite.Sprite):
 			dust_particle = self.dust_run_particles[int(self.dust_frame_index)]
 
 			if self.facing_right:
-				pos = self.rect.bottomleft
+				pos = self.rect.bottomleft - pygame.math.Vector2(6,10)
 				self.display_surface.blit(dust_particle,pos)
+			else:
+				pos = self.rect.bottomright - pygame.math.Vector2(6,10)
+				flipped_dust_particle = pygame.transform.flip(dust_particle,True,False)
+				self.display_surface.blit(flipped_dust_particle,pos)
 
 
 	def get_input(self):
@@ -99,6 +104,7 @@ class Player(pygame.sprite.Sprite):
 
 		if keys[pygame.K_SPACE] and self.on_ground:
 			self.jump()
+			self.create_jump_particles(self.rect.midbottom)
 
 	def get_status(self):
 		if self.direction.y < 0:
